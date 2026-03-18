@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Photo Gallery</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #0a0a0a;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ── Landing Page ── */
+  #landing {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+    width: 100%; height: 100%;
+  }
+  .category-card {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+  .category-card:active {
+    transform: scale(0.97);
+  }
+  .category-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .category-card .overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.1) 50%);
+    display: flex;
+    align-items: flex-end;
+    padding: 24px;
+  }
+  .category-card .label {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  }
+  .category-card .count {
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 0.7;
+    margin-left: 12px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* ── Gallery View ── */
+  #gallery {
+    display: none;
+    width: 100%; height: 100%;
+    position: relative;
+    background: #000;
+  }
+  #gallery.active { display: flex; flex-direction: column; }
+  #landing.hidden { display: none; }
+
+  .gallery-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .back-btn:active { background: rgba(255,255,255,0.3); }
+  .gallery-title {
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .photo-counter {
+    font-size: 16px;
+    opacity: 0.7;
+    min-width: 80px;
+    text-align: right;
+  }
+
+  .gallery-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .gallery-slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .gallery-slide img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  /* Nav arrows */
+  .nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: #fff;
+    font-size: 36px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+  .nav-arrow:active { background: rgba(255,255,255,0.3); }
+  .nav-arrow.left { left: 16px; }
+  .nav-arrow.right { right: 16px; }
+
+  /* Thumbnail strip */
+  .thumb-strip {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    overflow-x: auto;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .thumb-strip::-webkit-scrollbar { display: none; }
+  .thumb-item {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: border-color 0.15s, opacity 0.15s;
+    opacity: 0.5;
+  }
+  .thumb-item.active {
+    border-color: #fff;
+    opacity: 1;
+  }
+  .thumb-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+</style>
+</head>
+<body>
+
+<!-- Landing Page -->
+<div id="landing">
+  <div class="category-card" onclick="openGallery('Captain')">
+    <img src="Captain/IMG_9795.jpg" alt="Captain" loading="lazy">
+    <div class="overlay">
+      <div class="label">Captain<span class="count">12 photos</span></div>
+    </div>
+  </div>
+  <div class="category-card" onclick="openGallery('Platinum')">
+    <img src="Platinum/IMG_7603.jpg" alt="Platinum" loading="lazy">
+    <div class="overlay">
+      <div class="label">Platinum<span class="count">13 photos</span></div>
+    </div>
+  </div>
+  <div class="category-card" onclick="openGallery('Platinum Plus')">
+    <img src="Platinum Plus/IMG_7928.jpg" alt="Platinum Plus" loading="lazy">
+    <div class="overlay">
+      <div class="label">Platinum Plus<span class="count">8 photos</span></div>
+    </div>
+  </div>
+  <div class="category-card" onclick="openGallery('XLE')">
+    <img src="XLE/IMG_4066.jpg" alt="XLE" loading="lazy">
+    <div class="overlay">
+      <div class="label">XLE<span class="count">19 photos</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Gallery View -->
+<div id="gallery">
+  <div class="gallery-header">
+    <button class="back-btn" onclick="closeGallery()">&#8592; Back</button>
+    <div class="gallery-title" id="galleryTitle"></div>
+    <div class="photo-counter" id="photoCounter"></div>
+  </div>
+  <div class="gallery-container" id="galleryContainer">
+    <div class="gallery-slide" id="gallerySlide">
+      <img id="mainImage" src="" alt="">
+    </div>
+    <button class="nav-arrow left" onclick="navigate(-1)">&#8249;</button>
+    <button class="nav-arrow right" onclick="navigate(1)">&#8250;</button>
+  </div>
+  <div class="thumb-strip" id="thumbStrip"></div>
+</div>
+
+<script>
+const categories = {
+  'Captain': [
+    'Captain/7B0611A9-D36E-4701-AC61-B0DC0C59B3E1.jpg',
+    'Captain/C5D49BE2-0C47-4AE4-B96C-40B416922012 Firefly Upscaler 2x scale.jpg',
+    'Captain/IMG_9795.jpg',
+    'Captain/IMG_9798.jpg',
+    'Captain/IMG_9818.jpg',
+    'Captain/IMG_9820.jpg',
+    'Captain/IMG_9824.jpg',
+    'Captain/IMG_9826.jpg',
+    'Captain/IMG_9847.jpg',
+    'Captain/IMG_9901.jpg',
+    'Captain/IMG_9939.jpg',
+    'Captain/IMG_9946.jpg'
+  ],
+  'Platinum': [
+    'Platinum/IMG_0584.jpg',
+    'Platinum/IMG_4389.jpg',
+    'Platinum/IMG_7014.jpg',
+    'Platinum/IMG_7603.jpg',
+    'Platinum/IMG_7604.jpg',
+    'Platinum/IMG_7605.jpg',
+    'Platinum/IMG_7606.jpg',
+    'Platinum/IMG_7607.jpg',
+    'Platinum/IMG_7609.jpg',
+    'Platinum/IMG_7621.jpg',
+    'Platinum/IMG_8449.jpg',
+    'Platinum/IMG_8713.jpg',
+    'Platinum/Sequence 01.00_00_10_26.jpg'
+  ],
+  'Platinum Plus': [
+    'Platinum Plus/1236D190-D588-4A76-8FA8-F026980FA763.jpg',
+    'Platinum Plus/1686F1F3-1871-4821-8FE6-30E16B932F77.jpg',
+    'Platinum Plus/90B19A9C-99CA-4DAB-9B1B-A0499ED135FC.jpg',
+    'Platinum Plus/9AFFC727-3D62-4D3E-8856-2C81A2C69112.jpg',
+    'Platinum Plus/C9DAB507-03BC-4AA0-A355-0E02A81A4DF4.jpg',
+    'Platinum Plus/IMG_7928.jpg',
+    'Platinum Plus/IMG_7968.jpg',
+    'Platinum Plus/IMG_7977.jpg'
+  ],
+  'XLE': [
+    'XLE/1030D58F-9607-4A60-93C3-520CE660AC11.jpg',
+    'XLE/Cutouts/IMG_4083.jpg',
+    'XLE/IMG_4066.jpg',
+    'XLE/IMG_4100.jpg',
+    'XLE/IMG_4103.jpg',
+    'XLE/IMG_4266.jpg',
+    'XLE/IMG_4348.jpg',
+    'XLE/IMG_5001.jpg',
+    'XLE/IMG_5003.jpg',
+    'XLE/IMG_5203.jpg',
+    'XLE/IMG_5212.jpg',
+    'XLE/IMG_5222.jpg',
+    'XLE/IMG_5228.jpg',
+    'XLE/IMG_5237.jpg',
+    'XLE/IMG_8961.jpg',
+    'XLE/IMG_8962.jpg',
+    'XLE/IMG_8963.jpg',
+    'XLE/IMG_8964.jpg',
+    'XLE/xle main 2.jpg'
+  ]
+};
+
+let currentCategory = null;
+let currentIndex = 0;
+let touchStartX = 0;
+let touchStartY = 0;
+let isSwiping = false;
+
+function openGallery(name) {
+  currentCategory = name;
+  currentIndex = 0;
+
+  document.getElementById('landing').classList.add('hidden');
+  document.getElementById('gallery').classList.add('active');
+  document.getElementById('galleryTitle').textContent = name;
+
+  buildThumbs();
+  showImage(0);
+}
+
+function closeGallery() {
+  document.getElementById('gallery').classList.remove('active');
+  document.getElementById('landing').classList.remove('hidden');
+  currentCategory = null;
+}
+
+function showImage(index) {
+  const images = categories[currentCategory];
+  if (index < 0 || index >= images.length) return;
+  currentIndex = index;
+
+  const mainImg = document.getElementById('mainImage');
+  mainImg.src = encodeURI(images[index]);
+  document.getElementById('photoCounter').textContent = (index + 1) + ' / ' + images.length;
+
+  // Update thumb highlights
+  document.querySelectorAll('.thumb-item').forEach((t, i) => {
+    t.classList.toggle('active', i === index);
+  });
+
+  // Scroll active thumb into view
+  const activeThumb = document.querySelector('.thumb-item.active');
+  if (activeThumb) {
+    activeThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+}
+
+function navigate(dir) {
+  const images = categories[currentCategory];
+  let next = currentIndex + dir;
+  if (next < 0) next = images.length - 1;
+  if (next >= images.length) next = 0;
+  showImage(next);
+}
+
+function buildThumbs() {
+  const strip = document.getElementById('thumbStrip');
+  strip.innerHTML = '';
+  const images = categories[currentCategory];
+  images.forEach((src, i) => {
+    const div = document.createElement('div');
+    div.className = 'thumb-item' + (i === 0 ? ' active' : '');
+    div.onclick = () => showImage(i);
+    const img = document.createElement('img');
+    img.src = encodeURI(src);
+    img.loading = 'lazy';
+    img.alt = '';
+    div.appendChild(img);
+    strip.appendChild(div);
+  });
+}
+
+// Touch swipe handling
+const container = document.getElementById('galleryContainer');
+
+container.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  isSwiping = true;
+}, { passive: true });
+
+container.addEventListener('touchmove', (e) => {
+  if (!isSwiping) return;
+}, { passive: true });
+
+container.addEventListener('touchend', (e) => {
+  if (!isSwiping || !currentCategory) return;
+  isSwiping = false;
+  const touchEndX = e.changedTouches[0].clientX;
+  const touchEndY = e.changedTouches[0].clientY;
+  const dx = touchEndX - touchStartX;
+  const dy = touchEndY - touchStartY;
+
+  // Only trigger if horizontal swipe is dominant and long enough
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    if (dx < 0) navigate(1);  // swipe left = next
+    else navigate(-1);         // swipe right = prev
+  }
+}, { passive: true });
+
+// Keyboard support (for testing)
+document.addEventListener('keydown', (e) => {
+  if (!currentCategory) return;
+  if (e.key === 'ArrowLeft') navigate(-1);
+  if (e.key === 'ArrowRight') navigate(1);
+  if (e.key === 'Escape') closeGallery();
+});
+</script>
+
+</body>
+</html>
