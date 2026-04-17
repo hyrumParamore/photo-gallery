@@ -576,7 +576,7 @@ for (const [categoryName, images] of Object.entries(categories)) {
   });
 }
 
-const IDLE_TIMEOUT = 5000; 
+const IDLE_TIMEOUT = 5 * 60 * 1000; 
 const SLIDE_INTERVAL = 8000; 
 let idleTimer;
 let screensaverInterval;
