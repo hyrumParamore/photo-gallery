@@ -38,33 +38,35 @@
   .category-card:active {
     transform: scale(0.97);
   }
-  .category-card img {
+  
+  .category-card > img.bg-img {
     width: 100%; height: 100%;
     object-fit: cover;
     display: block;
   }
+  
   .category-card .overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.1) 50%);
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 50%);
     display: flex;
     align-items: flex-end;
     padding: 24px;
   }
-  .category-card .label {
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  
+  .category-logo {
+    width: auto;
+    max-width: 90%;
+    max-height: 55px;
+    object-fit: contain;
+    filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.8));
   }
-  .category-card .count {
-    font-size: 14px;
-    font-weight: 400;
-    opacity: 0.7;
-    margin-left: 12px;
-    letter-spacing: 0;
-    text-transform: none;
+
+  /* Visually balance ONLY the XLE logo SVGs. Background images are ignored. */
+  img.category-logo[alt="XLE Edition"], 
+  #galleryTitle img[alt="XLE"], 
+  #ssLabel img[alt="XLE"] {
+    transform: scale(0.80); /* Change 0.80 to tweak the size */
   }
 
   /* ── Gallery View ── */
@@ -103,17 +105,35 @@
     gap: 8px;
   }
   .back-btn:active { background: rgba(255,255,255,0.3); }
+  
   .gallery-title {
-    font-size: 20px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+  .gallery-title img {
+    height: 55px; 
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0px 2px 6px rgba(0,0,0,0.5));
+  }
+  
   .photo-counter {
     font-size: 16px;
     opacity: 0.7;
     min-width: 80px;
     text-align: right;
+  }
+
+  /* Shared Blur Background Style */
+  .blur-bg {
+    position: absolute;
+    top: -5%; left: -5%;
+    width: 110%; height: 110%;
+    object-fit: cover;
+    filter: blur(25px) brightness(0.4);
+    z-index: 0;
+    pointer-events: none;
   }
 
   .gallery-container {
@@ -127,12 +147,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 1; 
   }
   .gallery-slide img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5); 
   }
 
   /* Nav arrows */
@@ -169,6 +190,7 @@
     -webkit-backdrop-filter: blur(10px);
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    z-index: 10;
   }
   .thumb-strip::-webkit-scrollbar { display: none; }
   .thumb-item {
@@ -190,39 +212,95 @@
     width: 100%; height: 100%;
     object-fit: cover;
   }
+
+  /* ── Screensaver ── */
+  #screensaver {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 100;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  #screensaver.active {
+    display: block;
+  }
+  #screensaver img#ssImage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 1; 
+    animation: fadein 1s ease-in-out;
+  }
+  #screensaver img#ssBlur {
+    animation: fadein 1s ease-in-out;
+  }
+  
+  #ssLabel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 35%; /* Controls how high up the fade goes */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 100%);
+    padding: 32px 40px; 
+    border: none;
+    z-index: 2; 
+    display: flex;
+    align-items: flex-end; /* Pushes the logo to the bottom */
+    justify-content: flex-start; /* Keeps the logo on the left */
+    pointer-events: none;
+  }
+  
+  #ssLabel img {
+    /* =========================================================
+       EDIT SLIDESHOW LOGO SIZE HERE
+       Change the height value below to make the logo bigger or smaller.
+       ========================================================= */
+    height: 65px; 
+    
+    width: auto;
+    object-fit: contain;
+    /* Shadow removed from screensaver logos */
+  }
+  
+  @keyframes fadein {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
 </style>
 </head>
 <body>
 
-<!-- Landing Page -->
 <div id="landing">
   <div class="category-card" onclick="openGallery('Captain')">
-    <img src="Captain/IMG_9795.jpg" alt="Captain" loading="lazy">
+    <img id="cover-Captain" src="" alt="Captain" loading="lazy" class="bg-img">
     <div class="overlay">
-      <div class="label">Captain<span class="count">12 photos</span></div>
+      <img class="category-logo" src="Golfsheds_EditionLogos_Edition_Captain_PrimaryLogo_Gold.svg" alt="Captain Edition">
     </div>
   </div>
   <div class="category-card" onclick="openGallery('Platinum')">
-    <img src="Platinum/IMG_7603.jpg" alt="Platinum" loading="lazy">
+    <img id="cover-Platinum" src="" alt="Platinum" loading="lazy" class="bg-img">
     <div class="overlay">
-      <div class="label">Platinum<span class="count">13 photos</span></div>
+      <img class="category-logo" src="Golfsheds_EditionLogos_Edition_Platinum_PrimaryLogo_Gold.svg" alt="Platinum Edition">
     </div>
   </div>
   <div class="category-card" onclick="openGallery('Platinum Plus')">
-    <img src="Platinum Plus/IMG_7928.jpg" alt="Platinum Plus" loading="lazy">
+    <img id="cover-PlatinumPlus" src="" alt="Platinum Plus" loading="lazy" class="bg-img">
     <div class="overlay">
-      <div class="label">Platinum Plus<span class="count">8 photos</span></div>
+      <img class="category-logo" src="Golfsheds_EditionLogos_Edition_Platinum+_PrimaryLogo_Gold.svg" alt="Platinum Plus Edition">
     </div>
   </div>
   <div class="category-card" onclick="openGallery('XLE')">
-    <img src="XLE/IMG_4066.jpg" alt="XLE" loading="lazy">
+    <img id="cover-XLE" src="" alt="XLE" loading="lazy" class="bg-img">
     <div class="overlay">
-      <div class="label">XLE<span class="count">19 photos</span></div>
+      <img class="category-logo" src="Golfsheds_EditionLogos_Edition_XLE_PrimaryLogo_Gold.svg" alt="XLE Edition">
     </div>
   </div>
 </div>
 
-<!-- Gallery View -->
 <div id="gallery">
   <div class="gallery-header">
     <button class="back-btn" onclick="closeGallery()">&#8592; Back</button>
@@ -230,6 +308,8 @@
     <div class="photo-counter" id="photoCounter"></div>
   </div>
   <div class="gallery-container" id="galleryContainer">
+    <img id="galleryBlur" class="blur-bg" src="" alt="">
+    
     <div class="gallery-slide" id="gallerySlide">
       <img id="mainImage" src="" alt="">
     </div>
@@ -239,7 +319,34 @@
   <div class="thumb-strip" id="thumbStrip"></div>
 </div>
 
+<div id="screensaver" onclick="exitScreensaver()">
+  <img id="ssBlur" class="blur-bg" src="" alt="">
+  <img id="ssImage" src="" alt="">
+  <div id="ssLabel"></div>
+</div>
+
 <script>
+// ==========================================
+//           SETTINGS & CONFIGURATION
+// ==========================================
+
+// 1. MAIN MENU HERO PHOTOS 
+const coverPhotos = {
+  'Captain': 'Captain/captain main ai.jpg',
+  'Platinum': 'Platinum/platinum 1.jpg',
+  'Platinum Plus': 'Platinum Plus/platinum+ ai 2.jpg',
+  'XLE': 'XLE/xle ai 1.jpg'
+};
+
+// 2. EDITION LOGOS
+const logoFiles = {
+  'Captain': 'Golfsheds_EditionLogos_Edition_Captain_PrimaryLogo_Gold.svg',
+  'Platinum': 'Golfsheds_EditionLogos_Edition_Platinum_PrimaryLogo_Gold.svg',
+  'Platinum Plus': 'Golfsheds_EditionLogos_Edition_Platinum+_PrimaryLogo_Gold.svg',
+  'XLE': 'Golfsheds_EditionLogos_Edition_XLE_PrimaryLogo_Gold.svg'
+};
+
+// 3. FULL GALLERY LISTS
 const categories = {
   'Captain': [
     'Captain/7B0611A9-D36E-4701-AC61-B0DC0C59B3E1.jpg',
@@ -256,53 +363,101 @@ const categories = {
     'Captain/IMG_9946.jpg'
   ],
   'Platinum': [
+    'Platinum/7632F04A-E14B-4E30-BBEE-4C1EA283D6CC.jpg',
+    'Platinum/AEACB346-6A3F-4B36-85FA-71B5B2600D0D.jpg',
+    'Platinum/IMG_0577.jpg',
     'Platinum/IMG_0584.jpg',
+    'Platinum/IMG_1136.jpg',
+    'Platinum/IMG_1204.jpg',
+    'Platinum/IMG_1225.jpeg',
+    'Platinum/IMG_1275.jpg',
     'Platinum/IMG_4389.jpg',
+    'Platinum/IMG_6978.jpeg',
     'Platinum/IMG_7014.jpg',
+    'Platinum/IMG_7114.jpg',
     'Platinum/IMG_7603.jpg',
     'Platinum/IMG_7604.jpg',
     'Platinum/IMG_7605.jpg',
     'Platinum/IMG_7606.jpg',
     'Platinum/IMG_7607.jpg',
-    'Platinum/IMG_7609.jpg',
     'Platinum/IMG_7621.jpg',
+    'Platinum/IMG_8405.jpeg',
+    'Platinum/IMG_8406.jpg',
+    'Platinum/IMG_8411.jpg',
     'Platinum/IMG_8449.jpg',
+    'Platinum/IMG_8713.jpeg',
     'Platinum/IMG_8713.jpg',
-    'Platinum/Sequence 01.00_00_10_26.jpg'
+    'Platinum/IMG_8720.jpeg',
+    'Platinum/IMG_8726.jpg',
+    'Platinum/IMG_9188.jpeg',
+    'Platinum/platinum yard ai.jpg'
   ],
   'Platinum Plus': [
+    'Platinum Plus/4F2AF505-84ED-4D1B-899F-308776C187C2.jpg',
+    'Platinum Plus/6C12F97B-4405-4CAA-A68E-1B045676D77E.jpg',
+    'Platinum Plus/7A33B67E-D283-47E7-A122-F86AC5101C90.jpg',
+    'Platinum Plus/7B361792-3C10-47A7-9446-12F7EC04F748.jpg',
+    'Platinum Plus/9AFFC727-3D62-4D3E-8856-2C81A2C69112.jpg',
+    'Platinum Plus/9D9A38FC-078A-4184-B0C5-60AE39088F26.jpg',
+    'Platinum Plus/31BB58F5-DA52-4074-83FF-E1554B6C031D.jpg',
+    'Platinum Plus/0034FE3B-A818-4F7D-B8F9-61E95CA8E115.jpg',
+    'Platinum Plus/35F56B62-8852-4D75-94D9-9822D257B8AF.jpg',
+    'Platinum Plus/90B19A9C-99CA-4DAB-9B1B-A0499ED135FC.jpg',
+    'Platinum Plus/92FCA20C-FCC0-48B3-B069-EFA4329A7848.jpg',
+    'Platinum Plus/162F066F-3835-47F9-A159-46EED665B945.jpg',
+    'Platinum Plus/1030D58F-9607-4A60-93C3-520CE660AC11.jpg',
     'Platinum Plus/1236D190-D588-4A76-8FA8-F026980FA763.jpg',
     'Platinum Plus/1686F1F3-1871-4821-8FE6-30E16B932F77.jpg',
-    'Platinum Plus/90B19A9C-99CA-4DAB-9B1B-A0499ED135FC.jpg',
-    'Platinum Plus/9AFFC727-3D62-4D3E-8856-2C81A2C69112.jpg',
+    'Platinum Plus/12494884-12C2-4550-B513-FBFD69366051.jpg',
     'Platinum Plus/C9DAB507-03BC-4AA0-A355-0E02A81A4DF4.jpg',
-    'Platinum Plus/IMG_7928.jpg',
-    'Platinum Plus/IMG_7968.jpg',
-    'Platinum Plus/IMG_7977.jpg'
+    'Platinum Plus/IMG_7901.jpeg',
+    'Platinum Plus/IMG_7928.jpeg',
+    'Platinum Plus/IMG_7929.jpeg',
+    'Platinum Plus/IMG_7951.jpeg',
+    'Platinum Plus/IMG_7956.jpeg',
+    'Platinum Plus/IMG_7968.jpeg',
+    'Platinum Plus/IMG_7973.jpeg',
+    'Platinum Plus/IMG_7974.jpeg',
+    'Platinum Plus/IMG_7977.jpeg'
   ],
   'XLE': [
     'XLE/1030D58F-9607-4A60-93C3-520CE660AC11.jpg',
-    'XLE/Cutouts/IMG_4083.jpg',
+    'XLE/IMG_2599.jpg',
     'XLE/IMG_4066.jpg',
     'XLE/IMG_4100.jpg',
     'XLE/IMG_4103.jpg',
     'XLE/IMG_4266.jpg',
     'XLE/IMG_4348.jpg',
-    'XLE/IMG_5001.jpg',
     'XLE/IMG_5003.jpg',
+    'XLE/IMG_5030.jpg',
     'XLE/IMG_5203.jpg',
     'XLE/IMG_5212.jpg',
     'XLE/IMG_5222.jpg',
     'XLE/IMG_5228.jpg',
     'XLE/IMG_5237.jpg',
+    'XLE/IMG_6435.jpg',
     'XLE/IMG_8961.jpg',
     'XLE/IMG_8962.jpg',
     'XLE/IMG_8963.jpg',
     'XLE/IMG_8964.jpg',
+    'XLE/IMG_9430.jpg',
     'XLE/xle main 2.jpg'
   ]
 };
 
+// ==========================================
+//               APPLICATION LOGIC
+// ==========================================
+
+// Load cover photos into the HTML on startup
+window.onload = () => {
+  document.getElementById('cover-Captain').src = encodeURI(coverPhotos['Captain']);
+  document.getElementById('cover-Platinum').src = encodeURI(coverPhotos['Platinum']);
+  document.getElementById('cover-PlatinumPlus').src = encodeURI(coverPhotos['Platinum Plus']);
+  document.getElementById('cover-XLE').src = encodeURI(coverPhotos['XLE']);
+};
+
+// --- Gallery Logic ---
 let currentCategory = null;
 let currentIndex = 0;
 let touchStartX = 0;
@@ -315,7 +470,10 @@ function openGallery(name) {
 
   document.getElementById('landing').classList.add('hidden');
   document.getElementById('gallery').classList.add('active');
-  document.getElementById('galleryTitle').textContent = name;
+  
+  // Inject the SVG logo into the header
+  const titleContainer = document.getElementById('galleryTitle');
+  titleContainer.innerHTML = `<img src="${logoFiles[name]}" alt="${name}">`;
 
   buildThumbs();
   showImage(0);
@@ -332,16 +490,17 @@ function showImage(index) {
   if (index < 0 || index >= images.length) return;
   currentIndex = index;
 
-  const mainImg = document.getElementById('mainImage');
-  mainImg.src = encodeURI(images[index]);
+  const imgSrc = encodeURI(images[index]);
+  
+  document.getElementById('mainImage').src = imgSrc;
+  document.getElementById('galleryBlur').src = imgSrc;
+  
   document.getElementById('photoCounter').textContent = (index + 1) + ' / ' + images.length;
 
-  // Update thumb highlights
   document.querySelectorAll('.thumb-item').forEach((t, i) => {
     t.classList.toggle('active', i === index);
   });
 
-  // Scroll active thumb into view
   const activeThumb = document.querySelector('.thumb-item.active');
   if (activeThumb) {
     activeThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
@@ -394,20 +553,84 @@ container.addEventListener('touchend', (e) => {
   const dx = touchEndX - touchStartX;
   const dy = touchEndY - touchStartY;
 
-  // Only trigger if horizontal swipe is dominant and long enough
   if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-    if (dx < 0) navigate(1);  // swipe left = next
-    else navigate(-1);         // swipe right = prev
+    if (dx < 0) navigate(1); 
+    else navigate(-1);      
   }
 }, { passive: true });
 
-// Keyboard support (for testing)
 document.addEventListener('keydown', (e) => {
   if (!currentCategory) return;
   if (e.key === 'ArrowLeft') navigate(-1);
   if (e.key === 'ArrowRight') navigate(1);
   if (e.key === 'Escape') closeGallery();
 });
+
+
+// --- Screensaver Logic ---
+
+const allPhotos = [];
+for (const [categoryName, images] of Object.entries(categories)) {
+  images.forEach(src => {
+    allPhotos.push({ category: categoryName, src: src });
+  });
+}
+
+const IDLE_TIMEOUT = 5000; 
+const SLIDE_INTERVAL = 8000; 
+let idleTimer;
+let screensaverInterval;
+let isScreensaverActive = false;
+
+function resetIdleTimer() {
+  clearTimeout(idleTimer);
+  if (isScreensaverActive) return; 
+  idleTimer = setTimeout(startScreensaver, IDLE_TIMEOUT);
+}
+
+['mousemove', 'touchstart', 'keydown', 'click', 'scroll'].forEach(evt => 
+  document.addEventListener(evt, resetIdleTimer, { passive: true })
+);
+
+function startScreensaver() {
+  isScreensaverActive = true;
+  document.getElementById('screensaver').classList.add('active');
+  showRandomPhoto(); 
+  screensaverInterval = setInterval(showRandomPhoto, SLIDE_INTERVAL);
+}
+
+function showRandomPhoto() {
+  const randomIndex = Math.floor(Math.random() * allPhotos.length);
+  const photo = allPhotos[randomIndex];
+  const encodedSrc = encodeURI(photo.src);
+  
+  const ssImg = document.getElementById('ssImage');
+  const ssBlur = document.getElementById('ssBlur');
+  
+  ssImg.style.animation = 'none';
+  ssBlur.style.animation = 'none';
+  ssImg.offsetHeight; 
+  ssImg.style.animation = null; 
+  ssBlur.style.animation = null; 
+
+  ssImg.src = encodedSrc;
+  ssBlur.src = encodedSrc;
+  
+  // Inject the correct SVG logo into the screensaver label box
+  document.getElementById('ssLabel').innerHTML = `<img src="${logoFiles[photo.category]}" alt="${photo.category}">`;
+}
+
+function exitScreensaver() {
+  isScreensaverActive = false;
+  clearInterval(screensaverInterval);
+  document.getElementById('screensaver').classList.remove('active');
+  
+  closeGallery(); 
+  resetIdleTimer();
+}
+
+resetIdleTimer();
+
 </script>
 
 </body>
