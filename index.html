@@ -27,6 +27,8 @@
     gap: 12px;
     padding: 12px;
     width: 100%; height: 100%;
+    /* Hardware acceleration */
+    transform: translateZ(0); 
   }
   .category-card {
     position: relative;
@@ -34,15 +36,18 @@
     overflow: hidden;
     cursor: pointer;
     transition: transform 0.15s ease;
+    transform: translateZ(0);
+    will-change: transform;
   }
   .category-card:active {
-    transform: scale(0.97);
+    transform: scale(0.97) translateZ(0);
   }
   
   .category-card > img.bg-img {
     width: 100%; height: 100%;
     object-fit: cover;
     display: block;
+    will-change: transform;
   }
   
   .category-card .overlay {
@@ -60,13 +65,14 @@
     max-height: 55px;
     object-fit: contain;
     filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.8));
+    transform: translateZ(0);
   }
 
-  /* Visually balance ONLY the XLE logo SVGs. Background images are ignored. */
+  /* Visually balance ONLY the XLE logo SVGs */
   img.category-logo[alt="XLE Edition"], 
   #galleryTitle img[alt="XLE"], 
   #ssLabel img[alt="XLE"] {
-    transform: scale(0.80); /* Change 0.80 to tweak the size */
+    transform: scale(0.80) translateZ(0);
   }
 
   /* ── Gallery View ── */
@@ -75,6 +81,7 @@
     width: 100%; height: 100%;
     position: relative;
     background: #000;
+    transform: translateZ(0);
   }
   #gallery.active { display: flex; flex-direction: column; }
   #landing.hidden { display: none; }
@@ -90,6 +97,7 @@
     z-index: 10;
     position: absolute;
     top: 0; left: 0; right: 0;
+    transform: translateZ(0);
   }
   .back-btn {
     background: rgba(255,255,255,0.15);
@@ -103,6 +111,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    transform: translateZ(0);
   }
   .back-btn:active { background: rgba(255,255,255,0.3); }
   
@@ -125,7 +134,7 @@
     text-align: right;
   }
 
-  /* Shared Blur Background Style */
+  /* Shared Blur Background Style - Highly optimized for mobile GPUs */
   .blur-bg {
     position: absolute;
     top: -5%; left: -5%;
@@ -134,12 +143,17 @@
     filter: blur(25px) brightness(0.4);
     z-index: 0;
     pointer-events: none;
+    transform: translate3d(0,0,0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform, filter;
   }
 
   .gallery-container {
     flex: 1;
     position: relative;
     overflow: hidden;
+    transform: translateZ(0);
   }
   .gallery-slide {
     position: absolute;
@@ -154,13 +168,15 @@
     max-height: 100%;
     object-fit: contain;
     box-shadow: 0 0 40px rgba(0,0,0,0.5); 
+    transform: translateZ(0);
+    will-change: transform, opacity;
   }
 
   /* Nav arrows */
   .nav-arrow {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-50%) translateZ(0);
     background: rgba(255,255,255,0.12);
     border: none;
     color: #fff;
@@ -174,6 +190,7 @@
     align-items: center;
     justify-content: center;
     transition: background 0.15s;
+    will-change: transform;
   }
   .nav-arrow:active { background: rgba(255,255,255,0.3); }
   .nav-arrow.left { left: 16px; }
@@ -191,6 +208,7 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     z-index: 10;
+    transform: translateZ(0);
   }
   .thumb-strip::-webkit-scrollbar { display: none; }
   .thumb-item {
@@ -203,6 +221,7 @@
     border: 3px solid transparent;
     transition: border-color 0.15s, opacity 0.15s;
     opacity: 0.5;
+    transform: translateZ(0);
   }
   .thumb-item.active {
     border-color: #fff;
@@ -222,6 +241,7 @@
     z-index: 100;
     cursor: pointer;
     overflow: hidden;
+    transform: translateZ(0);
   }
   #screensaver.active {
     display: block;
@@ -232,10 +252,12 @@
     height: 100%;
     object-fit: contain;
     z-index: 1; 
-    animation: fadein 1s ease-in-out;
+    animation: fadein 0.6s ease-out forwards;
+    transform: translateZ(0);
+    will-change: opacity;
   }
   #screensaver img#ssBlur {
-    animation: fadein 1s ease-in-out;
+    animation: fadein 0.6s ease-out forwards;
   }
   
   #ssLabel {
@@ -243,27 +265,22 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 35%; /* Controls how high up the fade goes */
+    height: 35%; 
     background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 100%);
     padding: 32px 40px; 
     border: none;
     z-index: 2; 
     display: flex;
-    align-items: flex-end; /* Pushes the logo to the bottom */
-    justify-content: flex-start; /* Keeps the logo on the left */
+    align-items: flex-end; 
+    justify-content: flex-start; 
     pointer-events: none;
+    transform: translateZ(0);
   }
   
   #ssLabel img {
-    /* =========================================================
-       EDIT SLIDESHOW LOGO SIZE HERE
-       Change the height value below to make the logo bigger or smaller.
-       ========================================================= */
     height: 65px; 
-    
     width: auto;
     object-fit: contain;
-    /* Shadow removed from screensaver logos */
   }
   
   @keyframes fadein {
@@ -330,7 +347,6 @@
 //           SETTINGS & CONFIGURATION
 // ==========================================
 
-// 1. MAIN MENU HERO PHOTOS 
 const coverPhotos = {
   'Captain': 'Captain/captain main ai.jpg',
   'Platinum': 'Platinum/platinum 1.jpg',
@@ -338,7 +354,6 @@ const coverPhotos = {
   'XLE': 'XLE/xle ai 1.jpg'
 };
 
-// 2. EDITION LOGOS
 const logoFiles = {
   'Captain': 'Golfsheds_EditionLogos_Edition_Captain_PrimaryLogo_Gold.svg',
   'Platinum': 'Golfsheds_EditionLogos_Edition_Platinum_PrimaryLogo_Gold.svg',
@@ -346,7 +361,6 @@ const logoFiles = {
   'XLE': 'Golfsheds_EditionLogos_Edition_XLE_PrimaryLogo_Gold.svg'
 };
 
-// 3. FULL GALLERY LISTS
 const categories = {
   'Captain': [
     'Captain/7B0611A9-D36E-4701-AC61-B0DC0C59B3E1.jpg',
@@ -449,12 +463,26 @@ const categories = {
 //               APPLICATION LOGIC
 // ==========================================
 
-// Load cover photos into the HTML on startup
+// --- Smart Preloader Function ---
+const loadedImages = new Set();
+function preloadImage(url) {
+  if (!url || loadedImages.has(url)) return;
+  const img = new Image();
+  img.src = encodeURI(url);
+  loadedImages.add(url);
+}
+
+// Load cover photos and first gallery photos into memory on startup
 window.onload = () => {
   document.getElementById('cover-Captain').src = encodeURI(coverPhotos['Captain']);
   document.getElementById('cover-Platinum').src = encodeURI(coverPhotos['Platinum']);
   document.getElementById('cover-PlatinumPlus').src = encodeURI(coverPhotos['Platinum Plus']);
   document.getElementById('cover-XLE').src = encodeURI(coverPhotos['XLE']);
+  
+  // Preload the very first photo of every category so it opens instantly
+  for (const cat in categories) {
+    if (categories[cat].length > 0) preloadImage(categories[cat][0]);
+  }
 };
 
 // --- Gallery Logic ---
@@ -471,7 +499,6 @@ function openGallery(name) {
   document.getElementById('landing').classList.add('hidden');
   document.getElementById('gallery').classList.add('active');
   
-  // Inject the SVG logo into the header
   const titleContainer = document.getElementById('galleryTitle');
   titleContainer.innerHTML = `<img src="${logoFiles[name]}" alt="${name}">`;
 
@@ -505,6 +532,12 @@ function showImage(index) {
   if (activeThumb) {
     activeThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   }
+
+  // PRELOAD NEXT AND PREVIOUS IMAGES
+  const nextIndex = (index + 1) % images.length;
+  const prevIndex = (index - 1 + images.length) % images.length;
+  preloadImage(images[nextIndex]);
+  preloadImage(images[prevIndex]);
 }
 
 function navigate(dir) {
@@ -616,8 +649,11 @@ function showRandomPhoto() {
   ssImg.src = encodedSrc;
   ssBlur.src = encodedSrc;
   
-  // Inject the correct SVG logo into the screensaver label box
   document.getElementById('ssLabel').innerHTML = `<img src="${logoFiles[photo.category]}" alt="${photo.category}">`;
+  
+  // Preload the *next* random image to prevent a flash of black when it changes
+  const nextRandomIndex = Math.floor(Math.random() * allPhotos.length);
+  preloadImage(allPhotos[nextRandomIndex].src);
 }
 
 function exitScreensaver() {
